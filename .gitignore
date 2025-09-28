@@ -10,9 +10,6 @@ UserSettings/
 Assets/AssetStoreTools*
 
 # Visual Studio / MonoDevelop generated files
-*.csproj
-*.unityproj
-*.sln
 *.suo
 *.tmp
 *.user
@@ -44,6 +41,3 @@ Thumbs.db
 *.swp
 *.lock
 *.log
-
-# Rider specific
-.idea/
