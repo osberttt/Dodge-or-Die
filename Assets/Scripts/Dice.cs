@@ -10,10 +10,10 @@ public class Dice : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
     public TextMeshProUGUI numberText;
     public DiceSlot diceSlot;
 
-    private RectTransform rectTransform;
+    public RectTransform rectTransform;
     private CanvasGroup canvasGroup;
     public Vector3 originalPosition;
-    private Transform originalParent;
+    public Transform originalParent;
     private Canvas canvas;
     
     private void Awake()
@@ -27,7 +27,7 @@ public class Dice : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
     
     public void OnBeginDrag(PointerEventData eventData)
     {
-        originalPosition = rectTransform.anchoredPosition;
+        originalPosition = new Vector3(rectTransform.anchoredPosition.x, rectTransform.anchoredPosition.y, rectTransform.position.z);
         originalParent = transform.parent;
 
         // Make item draggable over everything
@@ -48,10 +48,15 @@ public class Dice : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
         // If not dropped on a DropZone, snap back
         if (transform.parent == canvas.transform)
         {
-            rectTransform.anchoredPosition = originalPosition;
             transform.SetParent(originalParent);
+            rectTransform.anchoredPosition = originalPosition;
         }
     }
-    
+
+    public void SetNumber(int number)
+    {
+        this.number = number;
+        numberText.text = number.ToString();
+    }
 
 }

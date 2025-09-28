@@ -1,33 +1,56 @@
 using System;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    public Button RerollBtn;
-    public Button EndTurnBtn;
+    public static UIManager Instance;
+    
+    public int score = 0;
 
-    public DiceManager diceManager;
+    public TextMeshProUGUI mainScoreText;
+    public TextMeshProUGUI finalScoreText;
+    public GridManager gridManager;
+    
     private void OnEnable()
     {
-        EndTurnBtn.onClick.AddListener(EndTurn);
-        RerollBtn.onClick.AddListener(Reroll);
+        GameManager.Instance.onCompleteTurn.AddListener(AddScore);
     }
 
     private void OnDisable()
     {
-        EndTurnBtn.onClick.RemoveAllListeners();
-        RerollBtn.onClick.RemoveAllListeners();
+        GameManager.Instance.onCompleteTurn.RemoveListener(AddScore);
+    }
+    
+    private void Awake()
+    {
+        Instance = this;
+    }
+    
+    public GameObject gameOverPanel;
+    public void GameOver()
+    {
+        gameOverPanel.SetActive(true);
+        finalScoreText.text = score.ToString();
     }
 
-    private void EndTurn()
+    public void AddScore()
     {
-        GameManager.Instance.onCompleteTurn?.Invoke();
+        score++;
+        mainScoreText.text = score.ToString();
+        
+        // if score is divisible by 10, reduce enemy spawn CD (for progression)
+        if (gridManager.enemySpawnCD > 1 && score % 10 == 0)
+        {
+            gridManager.enemySpawnCD--;
+        }
     }
 
-    private void Reroll()
+    public void RestartGame()
     {
-        diceManager.DeleteDice();
-        GameManager.Instance.onCompleteTurn?.Invoke();
+        score = 0;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -11,16 +12,43 @@ public struct Coord
         this.x = x;
         this.y = y;
     }
+    public static bool operator ==(Coord a, Coord b)
+    {
+        return a.x == b.x && a.y == b.y;
+    }
+
+    public static bool operator !=(Coord a, Coord b)
+    {
+        return !(a == b);
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is Coord other)
+        {
+            return this == other;
+        }
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        // Simple hash function combining x and y
+        return (x * 397) ^ y;
+    }
 }
 
 public class GridManager : MonoBehaviour
 {
     public GameObject cellPrefab;
     public GameObject playerPrefab;
+    public GameObject enemyPrefab;
     public Coord gridSize = new(5, 5);
-    public float cellSpacing = 0.5f;
+    public float cellSpacing = 120f;
     public Cell[,] grid;
     public Player player;
+    public List<Enemy> enemies;
+    public int enemySpawnCD = 5;
 
     void Start()
     {
@@ -28,6 +56,16 @@ public class GridManager : MonoBehaviour
         SpawnPlayer();
     }
 
+    private void OnEnable()
+    {
+        GameManager.Instance.onCompleteTurn.AddListener(DecideSpawnEnemy);
+    }
+
+    private void OnDisable()
+    {
+        GameManager.Instance.onCompleteTurn.RemoveListener(DecideSpawnEnemy);
+    }
+    
     private void SpawnPlayer()
     {
         var playerObj = Instantiate(playerPrefab, transform);
@@ -49,6 +87,30 @@ public class GridManager : MonoBehaviour
         }
         
         UpdatePlayerNeighbours();
+    }
+
+    private void DecideSpawnEnemy()
+    {
+        var chance = Random.Range(0, enemySpawnCD);
+        if (chance == 0)
+        {
+            SpawnEnemy();
+        }
+    }
+    private void SpawnEnemy()
+    {
+        var enemyObj = Instantiate(enemyPrefab, transform);
+        var enemyCoord = new Coord(Random.Range(0, gridSize.x), Random.Range(0, gridSize.y));
+        var rt = enemyObj.GetComponent<RectTransform>();
+        rt.anchoredPosition = grid[enemyCoord.x, enemyCoord.y].rect.anchoredPosition;
+        var enemyComponent = enemyObj.GetComponent<Enemy>();
+        enemyComponent.name = "Enemy";
+        enemyComponent.currentCoord = enemyCoord;
+        enemyComponent.gridManager = this;
+        enemyComponent.SetDirection();
+        enemyComponent.SetActive(false);
+        enemyComponent.player = player;
+        enemies.Add(enemyComponent);
     }
 
     private void GenerateGrid()
@@ -103,24 +165,29 @@ public class GridManager : MonoBehaviour
         var neighbours = new System.Collections.Generic.List<Cell>();
         var c = player.currentCoord;
 
-        // Up
-        if (c.y - 1 >= 0)
-            neighbours.Add(grid[c.x, c.y - 1]);
+        // Loop through offsets (-1, 0, 1) for both x and y
+        for (int dx = -1; dx <= 1; dx++)
+        {
+            for (int dy = -1; dy <= 1; dy++)
+            {
+                // Skip the player's own position (0,0 offset)
+                if (dx == 0 && dy == 0)
+                    continue;
 
-        // Down
-        if (c.y + 1 < gridSize.y)
-            neighbours.Add(grid[c.x, c.y + 1]);
+                int nx = c.x + dx;
+                int ny = c.y + dy;
 
-        // Left
-        if (c.x - 1 >= 0)
-            neighbours.Add(grid[c.x - 1, c.y]);
-
-        // Right
-        if (c.x + 1 < gridSize.x)
-            neighbours.Add(grid[c.x + 1, c.y]);
+                // Check grid bounds
+                if (nx >= 0 && nx < gridSize.x && ny >= 0 && ny < gridSize.y)
+                {
+                    neighbours.Add(grid[nx, ny]);
+                }
+            }
+        }
 
         return neighbours.ToArray();
     }
+
 
     
 }

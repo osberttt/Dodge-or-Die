@@ -6,6 +6,7 @@ using UnityEngine.Serialization;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
+    
 
     private void Awake()
     {
@@ -19,4 +20,6 @@ public class GameManager : MonoBehaviour
     }
 
     public UnityEvent onCompleteTurn = new UnityEvent();
+
+    
 }
