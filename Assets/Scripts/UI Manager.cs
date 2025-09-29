@@ -11,9 +11,10 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance;
     
     public int score = 0;
-
+    public int highScore = 0;
     public TextMeshProUGUI mainScoreText;
     public TextMeshProUGUI finalScoreText;
+    public TextMeshProUGUI highScoreText;
     public GridManager gridManager;
     public GameObject inputBlocker;
 
@@ -37,8 +38,15 @@ public class UIManager : MonoBehaviour
     public GameObject gameOverPanel;
     public void GameOver()
     {
+        highScore = PlayerPrefs.GetInt("highScore", 0);
         gameOverPanel.SetActive(true);
         finalScoreText.text = score.ToString();
+        if (score >= highScore)
+        {
+            highScore = score;
+            highScoreText.text = highScore.ToString();
+            PlayerPrefs.SetInt("HighScore", highScore);
+        }
     }
 
     public void AddScore(int scoreToAdd)

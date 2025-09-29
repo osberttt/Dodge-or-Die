@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using Random = UnityEngine.Random;
 
-public class Dice : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class Dice : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler 
 {
     public int number;
     public DiceSlot diceSlot;
@@ -30,14 +30,18 @@ public class Dice : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHand
     {
         UIManager.Instance.BlockInput();
         
-        // have 5 for rotate animation
-        number = 5;
+        number = Random.Range(1, 7);
         UpdateFace();
         
         rectTransform
             .DORotate(new Vector3(0, 0, 360), 0.2f, RotateMode.FastBeyond360)
             .SetLoops(3, LoopType.Restart) // 5 loops
             .SetEase(Ease.Linear)
+            .OnStepComplete(() =>
+            {
+                number = Random.Range(1, 7);
+                UpdateFace();
+            })
             .OnComplete(() =>
             {
                 number = Random.Range(1, 7);

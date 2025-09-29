@@ -44,14 +44,14 @@ public class GridManager : MonoBehaviour
     public GameObject playerPrefab;
     public GameObject enemyPrefab;
     public GameObject boosterPrefab;
-    public Coord gridSize = new(5, 5);
+    public Coord gridSize = new(4, 4);
     public float cellSpacing = 120f;
     public Cell[,] grid;
     public Player player;
     public List<Enemy> enemies;
     public int enemySpawnCD = 4;
     public int boosterSpawnCD = 2;
-    public bool hasBooster = false;
+    public GameObject booster;
 
     void Start()
     {
@@ -140,7 +140,7 @@ public class GridManager : MonoBehaviour
 
     private void DecideSpawnBooster(int score)
     {
-        if (hasBooster) return;
+        if (booster) return;
         var chance = Random.Range(0, boosterSpawnCD);
         if (chance == 0)
         {
@@ -150,9 +150,8 @@ public class GridManager : MonoBehaviour
 
     private void SpawnBooster()
     {
-        hasBooster = true;
         var boosterObj = Instantiate(boosterPrefab, transform);
-
+        booster = boosterObj;
         var boosterCoord = player.currentCoord;
         while (boosterCoord == player.currentCoord)
         {

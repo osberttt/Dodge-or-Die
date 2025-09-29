@@ -24,7 +24,8 @@ public class Player : MonoBehaviour
         if (cell.hasBooster)
         {
             UIManager.Instance.AddScore(5);
-            gridManager.hasBooster = false;
+            Destroy(gridManager.booster);
+            gridManager.booster = null;
         }
         UIManager.Instance.BlockInput();
         rect.DOAnchorPos(cell.rect.anchoredPosition, 0.5f).OnComplete(() => UIManager.Instance.UnblockInput());
