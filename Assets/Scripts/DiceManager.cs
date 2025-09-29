@@ -18,10 +18,10 @@ public class DiceManager : MonoBehaviour
 
     private void Start()
     {
-        RollTheDie();
+        RollTheDie(0);
     }
 
-    private void RollTheDie()
+    private void RollTheDie(int score)
     {
         foreach (var diceSlot in diceSlots)
         {

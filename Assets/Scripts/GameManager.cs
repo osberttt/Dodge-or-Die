@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
-    public UnityEvent onCompleteTurn = new UnityEvent();
+    public UnityEvent<int> onCompleteTurn = new UnityEvent<int>();
 
     
 }

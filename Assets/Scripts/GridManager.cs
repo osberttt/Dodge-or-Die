@@ -43,12 +43,15 @@ public class GridManager : MonoBehaviour
     public GameObject cellPrefab;
     public GameObject playerPrefab;
     public GameObject enemyPrefab;
+    public GameObject boosterPrefab;
     public Coord gridSize = new(5, 5);
     public float cellSpacing = 120f;
     public Cell[,] grid;
     public Player player;
     public List<Enemy> enemies;
-    public int enemySpawnCD = 5;
+    public int enemySpawnCD = 4;
+    public int boosterSpawnCD = 2;
+    public bool hasBooster = false;
 
     void Start()
     {
@@ -59,11 +62,13 @@ public class GridManager : MonoBehaviour
     private void OnEnable()
     {
         GameManager.Instance.onCompleteTurn.AddListener(DecideSpawnEnemy);
+        GameManager.Instance.onCompleteTurn.AddListener(DecideSpawnBooster);
     }
 
     private void OnDisable()
     {
         GameManager.Instance.onCompleteTurn.RemoveListener(DecideSpawnEnemy);
+        GameManager.Instance.onCompleteTurn.RemoveListener(DecideSpawnBooster);
     }
     
     private void SpawnPlayer()
@@ -89,7 +94,7 @@ public class GridManager : MonoBehaviour
         UpdatePlayerNeighbours();
     }
 
-    private void DecideSpawnEnemy()
+    private void DecideSpawnEnemy(int score)
     {
         var chance = Random.Range(0, enemySpawnCD);
         if (chance == 0)
@@ -97,10 +102,30 @@ public class GridManager : MonoBehaviour
             SpawnEnemy();
         }
     }
+    
     private void SpawnEnemy()
     {
         var enemyObj = Instantiate(enemyPrefab, transform);
-        var enemyCoord = new Coord(Random.Range(0, gridSize.x), Random.Range(0, gridSize.y));
+        
+        var index = Random.Range(0, 3);
+        var xCoord = 0;
+        var yCoord = 0;
+        switch (index)
+        {
+            case 0:
+                xCoord = Random.Range(0, 2) == 0 ? gridSize.x - 1 : 0;
+                yCoord = Random.Range(0, 2) == 0 ? gridSize.y - 1 : 0;
+                break;
+            case 1:
+                xCoord = Random.Range(0, 2) == 0 ? gridSize.x - 1 : 0;
+                yCoord = Random.Range(0, gridSize.y - 1);
+                break;
+            case 2:
+                xCoord = Random.Range(0, gridSize.x - 1);
+                yCoord = Random.Range(0, 2) == 0 ? gridSize.y - 1 : 0;
+                break;
+        }
+        var enemyCoord = new Coord(xCoord, yCoord);
         var rt = enemyObj.GetComponent<RectTransform>();
         rt.anchoredPosition = grid[enemyCoord.x, enemyCoord.y].rect.anchoredPosition;
         var enemyComponent = enemyObj.GetComponent<Enemy>();
@@ -113,6 +138,32 @@ public class GridManager : MonoBehaviour
         enemies.Add(enemyComponent);
     }
 
+    private void DecideSpawnBooster(int score)
+    {
+        if (hasBooster) return;
+        var chance = Random.Range(0, boosterSpawnCD);
+        if (chance == 0)
+        {
+            SpawnBooster();
+        }
+    }
+
+    private void SpawnBooster()
+    {
+        hasBooster = true;
+        var boosterObj = Instantiate(boosterPrefab, transform);
+
+        var boosterCoord = player.currentCoord;
+        while (boosterCoord == player.currentCoord)
+        {
+            boosterCoord = new Coord(Random.Range(0, gridSize.x), Random.Range(0, gridSize.y));
+        }
+
+        var boosterCell = grid[boosterCoord.x, boosterCoord.y];
+        boosterCell.hasBooster = true;
+        var rt = boosterObj.GetComponent<RectTransform>();
+        rt.anchoredPosition = boosterCell.rect.anchoredPosition;
+    }
     private void GenerateGrid()
     {
         grid = new Cell[gridSize.x, gridSize.y];

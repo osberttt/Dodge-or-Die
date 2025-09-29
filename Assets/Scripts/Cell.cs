@@ -20,6 +20,7 @@ public class Cell : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
 
     public Image image;
 
+    public bool hasBooster = false;
     private void Awake()
     {
         image = GetComponent<Image>();
@@ -54,7 +55,7 @@ public class Cell : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         player.MoveTo(this);
         dice.diceSlot.currentDice = null;
         Destroy(dice.gameObject);
-        GameManager.Instance.onCompleteTurn?.Invoke();
+        GameManager.Instance.onCompleteTurn?.Invoke(1);
     }
     
     public void OnPointerEnter(PointerEventData eventData)

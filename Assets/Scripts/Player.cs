@@ -1,5 +1,7 @@
 using System;
+using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -8,16 +10,29 @@ public class Player : MonoBehaviour
     public Cell[] neighbours;
 
     private RectTransform rect;
+    private Image image;
 
     private void Awake()
     {
         rect = GetComponent<RectTransform>();
+        image = GetComponent<Image>();
     }
 
     public void MoveTo(Cell cell)
     {
         currentCoord = cell.coord;
-        rect.anchoredPosition = cell.rect.anchoredPosition;
+        if (cell.hasBooster)
+        {
+            UIManager.Instance.AddScore(5);
+            gridManager.hasBooster = false;
+        }
+        UIManager.Instance.BlockInput();
+        rect.DOAnchorPos(cell.rect.anchoredPosition, 0.5f).OnComplete(() => UIManager.Instance.UnblockInput());
         gridManager.UpdatePlayerNeighbours();
+    }
+
+    public void Die()
+    {
+        image.DOFade(0, 0.5f).OnComplete(() => UIManager.Instance.GameOver());
     }
 }

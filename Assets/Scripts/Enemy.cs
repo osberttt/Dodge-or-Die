@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
@@ -32,7 +34,20 @@ public class Enemy : MonoBehaviour
 
     public void SetDirection()
     {
-        int index = Random.Range(0, 4); // 0,1,2,3
+        /*var unavailableCoords = new List<int>();
+        if (currentCoord.y == 0) unavailableCoords.Add(0);
+        if (currentCoord.y == gridManager.gridSize.y - 1) unavailableCoords.Add(1);
+        if (currentCoord.x == 0) unavailableCoords.Add(2);
+        if (currentCoord.x == gridManager.gridSize.x - 1) unavailableCoords.Add(3);
+
+        var index = -1;
+        while (index == -1)
+        {
+            index = Random.Range(0, 4);
+            if (unavailableCoords.Contains(index)) index = -1;
+        }*/
+        
+        var index = Random.Range(0, 4);
         switch (index)
         {
             case 0:
@@ -45,11 +60,11 @@ public class Enemy : MonoBehaviour
                 break;
             case 2:
                 direction = Vector2.up;
-                transform.rotation = Quaternion.Euler(0,0,90);// (0, 1)
+                transform.rotation = Quaternion.Euler(0,0,270);// (0, 1)
                 break;
             case 3:
                 direction = Vector2.down;
-                transform.rotation = Quaternion.Euler(0,0,270);// (0, -1)
+                transform.rotation = Quaternion.Euler(0,0,90);// (0, -1)
                 break;
         }
     }
@@ -72,10 +87,14 @@ public class Enemy : MonoBehaviour
         }
         isActive = active;
     }
-    private void Move()
+    private void Move(int score)
     {
-        SetActive(true);
-        var newCoord = new Coord(currentCoord.x + (int)direction.x, currentCoord.y + (int)direction.y);
+        if (!isActive)
+        {
+            SetActive(true);
+            return;
+        }
+        var newCoord = new Coord(currentCoord.x + (int)direction.x, currentCoord.y - (int)direction.y);
         if (newCoord.x < 0 || newCoord.y < 0 || newCoord.x >= gridManager.gridSize.x ||
             newCoord.y >= gridManager.gridSize.y)
         {
@@ -85,11 +104,12 @@ public class Enemy : MonoBehaviour
         }
         currentCoord = newCoord;
         var newCell = gridManager.grid[newCoord.x, newCoord.y];
-        rect.anchoredPosition = newCell.rect.anchoredPosition;
+        UIManager.Instance.BlockInput();
+        rect.DOAnchorPos(newCell.rect.anchoredPosition, 0.5f).OnComplete(() => UIManager.Instance.UnblockInput());
 
         if (player.currentCoord == currentCoord)
         {
-            UIManager.Instance.GameOver();
+            player.Die();
         }
     }
 }
