@@ -27,7 +27,7 @@ public class Pool : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
         if (image != null)
             image.color = normalColor;
         PoolEffect(dice);
-        GameManager.Instance.onCompleteTurn?.Invoke(-1);
+        GameManager.Instance.onCompleteTurn?.Invoke(0);
     }
 
     protected virtual void PoolEffect(Dice dice)
