@@ -18,6 +18,7 @@ public class SubtractPool : Pool
         dice.rectTransform
             .DOAnchorPos(dice.originalPosition, 0.5f, true)
             .OnComplete(() => UIManager.Instance.UnblockInput());
+        base.PlaySound();
     }
     
 }

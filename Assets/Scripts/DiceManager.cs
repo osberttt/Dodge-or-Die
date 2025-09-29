@@ -5,6 +5,7 @@ public class DiceManager : MonoBehaviour
 {
     public GameObject dicePrefab;
     public DiceSlot[] diceSlots;
+    public AudioSource audioSource;
 
     private void OnEnable()
     {
@@ -34,6 +35,8 @@ public class DiceManager : MonoBehaviour
         var dice = diceObj.GetComponent<Dice>();
         diceSlot.currentDice = dice;
         dice.diceSlot = diceSlot;
+        if (!audioSource.isPlaying)
+            audioSource.Play();
     }
 
     public void DeleteDice()

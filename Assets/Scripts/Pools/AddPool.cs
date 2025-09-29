@@ -1,4 +1,5 @@
 using DG.Tweening;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class AddPool : Pool
@@ -18,6 +19,9 @@ public class AddPool : Pool
         dice.rectTransform
             .DOAnchorPos(dice.originalPosition, 0.5f, true)
             .OnComplete(() => UIManager.Instance.UnblockInput());
+
+        if (audioSource != null)
+            audioSource.Play();
     }
     
 }

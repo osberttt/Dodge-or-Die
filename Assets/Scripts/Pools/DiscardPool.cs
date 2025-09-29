@@ -7,5 +7,6 @@ public class DiscardPool : Pool
         base.PoolEffect(dice);
         dice.diceSlot.currentDice = null;
         Destroy(dice.gameObject);
+        base.PlaySound();
     }
 }

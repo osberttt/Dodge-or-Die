@@ -10,6 +10,9 @@ public class Pool : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
     [Header("Visuals")]
     public Color normalColor = Color.white;
     public Color highlightColor = Color.green;
+
+    [Header("Audio")]
+    public AudioSource audioSource;
     
     private void Awake()
     {
@@ -29,9 +32,15 @@ public class Pool : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerE
 
     protected virtual void PoolEffect(Dice dice)
     {
-        
+
     }
-    
+
+    public void PlaySound()
+    {
+        if (audioSource != null && !audioSource.isPlaying)
+            audioSource.Play();
+    }
+
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (eventData.pointerDrag == null) return;
